@@ -191,6 +191,16 @@ if test x$GXX = xyes; then
   fi
 fi
 
+support_24_bit_color=no
+AC_ARG_ENABLE(24-bit-color,
+  [  --enable-24-bit-color   enable 24-bit color support],
+  [ if test x$enableval = xyes; then
+     support_24_bit_color=yes
+  fi])
+if test x$support_24_bit_color = xyes; then
+  AC_DEFINE(USE_24_BIT_COLOR, 1, Define if you want 24-bit color support)
+fi
+
 support_256_color=no
 AC_ARG_ENABLE(256-color,
   [  --enable-256-color      enable 256-color support],
