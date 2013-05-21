@@ -430,6 +430,14 @@ enum {
 #define RS_bgMask               ((rend_t)(RS_colorMask << RS_bgShift))
 #define RS_fgMask               ((rend_t)(RS_colorMask << RS_fgShift))
 
+#ifdef USE_24_BIT_COLOR
+#define RS_fontCountBits 4
+#elif USE_256_COLORS
+#define RS_fontCountBits 4
+#else
+#define RS_fontCountBits 8
+#endif
+
 // must have space for rxvt_fontset::fontCount * 2 + 2 values
 #define RS_fontShift            (RS_fgShift + Color_Bits)
 #define RS_Careful		((rend_t)(1UL << RS_fontShift))	/* be careful when drawing these */
@@ -439,7 +447,7 @@ enum {
 // toggle this to force redraw, must be != RS_Careful and otherwise "pretty neutral"
 #define RS_redraw		((rend_t)(2UL << RS_fontShift))
 
-#define RS_selShift (RS_fontShift + 4)
+#define RS_selShift (RS_fontShift + RS_fontCountBits)
 #define RS_Sel                  ((rend_t)(1UL << RS_selShift))
 
 // 4 custom bits for extensions
@@ -615,7 +623,7 @@ enum colour_list {
 };
 
 #if USE_24_BIT_COLOR
-# define Color_Bits      24 // 0 .. 2^24-1
+# define Color_Bits      25 // 0 .. 2^24-1 plus an extra (for?) // wip
 #elif USE_256_COLORS
 # define Color_Bits      9 // 0 .. maxTermCOLOR
 #else
@@ -1525,7 +1533,7 @@ struct rxvt_term : zero_initialized, rxvt_vars, rxvt_screen
   void scr_swap_screen () NOTHROW;
   void scr_change_screen (int scrn);
   void scr_color (unsigned int color, int fgbg) NOTHROW;
-  void scr_rendition (int set, int style) NOTHROW;
+  void scr_rendition (int set, rend_t style) NOTHROW;
   void scr_add_lines (const wchar_t *str, int len, int minlines = 0) NOTHROW;
   void scr_backspace () NOTHROW;
   void scr_tab (int count, bool ht = false) NOTHROW;

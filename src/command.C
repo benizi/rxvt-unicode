@@ -3876,7 +3876,7 @@ rxvt_term::process_sgr_mode (unsigned int nargs, const int *arg)
 {
   unsigned int i;
   short rendset;
-  int rendstyle;
+  rend_t rendstyle;
 
   if (nargs == 0)
     {

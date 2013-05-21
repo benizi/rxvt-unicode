@@ -630,7 +630,7 @@ rxvt_term::scr_color (unsigned int color, int fgbg) NOTHROW
  * Change the rendition style for following text
  */
 void
-rxvt_term::scr_rendition (int set, int style) NOTHROW
+rxvt_term::scr_rendition (int set, rend_t style) NOTHROW
 {
   if (set)
     rstyle |= style;
