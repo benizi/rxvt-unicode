@@ -577,7 +577,8 @@ enum colour_list {
   Color_White = maxCOLOR,
 #endif
   minTermCOLOR = Color_White + 1,
-#if USE_256_COLORS
+#if USE_256_COLORS || USE_24_BIT_COLOR
+  /* 24-bit color still uses the 256-color palette for enumerated colors */
   maxTermCOLOR = Color_White + 240,
 #else
   maxTermCOLOR = Color_White + 72,

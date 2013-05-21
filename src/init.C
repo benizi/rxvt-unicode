@@ -179,7 +179,7 @@ static const char *const def_colorName[] =
     "rgb:00/ff/ff",             // 6/14: bright cyan    (Cyan)
     "rgb:ff/ff/ff",             // 7/15: bright white   (White)
 
-#if !USE_256_COLORS
+#if !USE_256_COLORS && !USE_24_BIT_COLOR
     // 88 xterm colours
     "rgb:00/00/00",
     "rgb:00/00/8b",
