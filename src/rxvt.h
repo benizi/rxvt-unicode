@@ -1472,33 +1472,45 @@ struct rxvt_term : zero_initialized, rxvt_vars, rxvt_screen
 
   void set_option (uint8_t opt, bool set = true) NOTHROW;
 
+#ifdef USE_24_BIT_COLOR
+  int fgcolor_of (rend_t r) const NOTHROW
+  {
+    return GET_BASEFG (r);
+  }
+
+  int bgcolor_of (rend_t r) const NOTHROW
+  {
+    return GET_BASEBG (r);
+  }
+#else
   int fgcolor_of (rend_t r) const NOTHROW
   {
     int base = GET_BASEFG (r);
-#ifndef NO_BRIGHTCOLOR
+# ifndef NO_BRIGHTCOLOR
     if (r & RS_Bold
-# if ENABLE_STYLES
+#  if ENABLE_STYLES
         && option (Opt_intensityStyles)
-# endif
+#  endif
         && IN_RANGE_EXC (base, minCOLOR, minBrightCOLOR))
       base += minBrightCOLOR - minCOLOR;
-#endif
+# endif
     return base;
   }
 
   int bgcolor_of (rend_t r) const NOTHROW
   {
     int base = GET_BASEBG (r);
-#ifndef NO_BRIGHTCOLOR
+# ifndef NO_BRIGHTCOLOR
     if (r & RS_Blink
-# if ENABLE_STYLES
+#  if ENABLE_STYLES
         && option (Opt_intensityStyles)
-# endif
+#  endif
         && IN_RANGE_EXC (base, minCOLOR, minBrightCOLOR))
       base += minBrightCOLOR - minCOLOR;
-#endif
+# endif
     return base;
   }
+#endif
 
   // modifies first argument(!)
   void tt_paste (char *data, unsigned int len) NOTHROW;
