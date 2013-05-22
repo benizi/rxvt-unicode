@@ -3975,6 +3975,11 @@ rxvt_term::process_sgr_mode (unsigned int nargs, const int *arg)
                 scr_color_24 ((unsigned int) arg[i + 2], Color_fg);
                 i += 2;
               }
+            else if (nargs > i + 4 && arg[i + 1] == 2)
+              {
+                scr_color_rgb (arg[i + 2], arg[i + 3], arg[i + 4], Color_fg);
+                i += 4;
+              }
 #endif
             break;
           case 39:		/* default fg */
@@ -4002,6 +4007,11 @@ rxvt_term::process_sgr_mode (unsigned int nargs, const int *arg)
               {
                 scr_color_24 ((unsigned int) arg[i + 2], Color_bg);
                 i += 2;
+              }
+            else if (nargs > i + 4 && arg[i + 1] == 2)
+              {
+                scr_color_rgb (arg[i + 2], arg[i + 3], arg[i + 4], Color_bg);
+                i += 4;
               }
 #endif
             break;

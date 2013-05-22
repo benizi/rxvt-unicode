@@ -643,6 +643,27 @@ rxvt_term::scr_color_24 (unsigned int color, int fgbg) NOTHROW
   else
     rstyle = SET_BGCOLOR (rstyle, color);
 }
+
+/* ------------------------------------------------------------------------- */
+/*
+ * Change the colour for following text, specified as an R, G, B triple
+ */
+void
+rxvt_term::scr_color_rgb (int r, int g, int b, int fgbg) NOTHROW
+{
+  rend_t c = 0;
+
+  c += r & 0xff;
+  c <<= 8;
+  c += g & 0xff;
+  c <<= 8;
+  c += b & 0xff;
+
+  if (fgbg == Color_fg)
+    rstyle = SET_FGCOLOR (rstyle, c);
+  else
+    rstyle = SET_BGCOLOR (rstyle, c);
+}
 #endif
 
 /* ------------------------------------------------------------------------- */
