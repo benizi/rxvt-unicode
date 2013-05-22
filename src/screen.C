@@ -27,6 +27,7 @@
 #include "../config.h"          /* NECESSARY */
 #include "rxvt.h"               /* NECESSARY */
 #include "rxvtperl.h"           /* NECESSARY */
+#include "24bitcolor.h"
 
 #include <inttypes.h>
 
@@ -619,11 +620,30 @@ rxvt_term::scr_color (unsigned int color, int fgbg) NOTHROW
   if (!IN_RANGE_INC (color, minCOLOR, maxTermCOLOR))
     color = fgbg;
 
+#ifdef USE_24_BIT_COLOR
+  color = Pixel (pix_colors[color]);
+#endif
+
   if (fgbg == Color_fg)
     rstyle = SET_FGCOLOR (rstyle, color);
   else
     rstyle = SET_BGCOLOR (rstyle, color);
 }
+
+#ifdef USE_24_BIT_COLOR
+/* ------------------------------------------------------------------------- */
+/*
+ * Change the colour for following text, specified as a 24-bit int
+ */
+void
+rxvt_term::scr_color_24 (unsigned int color, int fgbg) NOTHROW
+{
+  if (fgbg == Color_fg)
+    rstyle = SET_FGCOLOR (rstyle, color);
+  else
+    rstyle = SET_BGCOLOR (rstyle, color);
+}
+#endif
 
 /* ------------------------------------------------------------------------- */
 /*
@@ -1388,13 +1408,21 @@ rxvt_term::scr_erase_screen (int mode) NOTHROW
 
       if (mapped)
         {
+#ifdef USE_24_BIT_COLOR
+          fprintf(stderr, "TODO:%s:%d\n", __FILE__, __LINE__);
+#else
           gcvalue.foreground = pix_colors[bgcolor_of (rstyle)];
+#endif
           XChangeGC (dpy, gc, GCForeground, &gcvalue);
           XFillRectangle (dpy, vt, gc,
                           0, Row2Pixel (row - view_start),
                           (unsigned int)vt_width,
                           (unsigned int)Height2Pixel (num));
+#ifdef USE_24_BIT_COLOR
+          fprintf(stderr, "TODO:%s:%d\n", __FILE__, __LINE__);
+#else
           gcvalue.foreground = pix_colors[Color_fg];
+#endif
           XChangeGC (dpy, gc, GCForeground, &gcvalue);
         }
     }
@@ -1715,15 +1743,27 @@ rxvt_term::scr_rvideo_mode (bool on) NOTHROW
     {
       rvideo_state = on;
 
+#ifdef USE_24_BIT_COLOR
+      fprintf(stderr, "TODO:%s:%d [swap?]\n", __FILE__, __LINE__);
+#else
       ::swap (pix_colors[Color_fg], pix_colors[Color_bg]);
+#endif
 #ifdef HAVE_IMG
       if (bg_img == 0)
 #endif
+#ifdef USE_24_BIT_COLOR
+          fprintf(stderr, "TODO:%s:%d [bg_img]\n", __FILE__, __LINE__);
+#else
           XSetWindowBackground (dpy, vt, pix_colors[Color_bg]);
+#endif
 
       XGCValues gcvalue;
+#ifdef USE_24_BIT_COLOR
+          fprintf(stderr, "TODO:%s:%d\n", __FILE__, __LINE__);
+#else
       gcvalue.foreground = pix_colors[Color_fg];
       gcvalue.background = pix_colors[Color_bg];
+#endif
       XChangeGC (dpy, gc, GCBackground | GCForeground, &gcvalue);
 
       scr_clear ();
@@ -2436,14 +2476,33 @@ rxvt_term::scr_refresh () NOTHROW
             {
               if (showcursor && focus && row == screen.cur.row
                   && IN_RANGE_EXC (col, cur_col, cur_col + cursorwidth))
+#ifdef USE_24_BIT_COLOR
+              {
+                fprintf(stderr, "TODO:%s:%d\n", __FILE__, __LINE__);
+              }
+#else
                 XSetForeground (dpy, gc, pix_colors[ccol1]);
+#endif
               else
 #if ENABLE_FRILLS
               if (ISSET_PIXCOLOR (Color_underline))
+#ifdef USE_24_BIT_COLOR
+              {
+                fprintf(stderr, "TODO:%s:%d\n", __FILE__, __LINE__);
+              }
+#else
                 XSetForeground (dpy, gc, pix_colors[Color_underline]);
+#endif
               else
 #endif
+#ifdef USE_24_BIT_COLOR
+              {
+                XFT_COLOR(fore, xft_fore);
+                XSetForeground (dpy, gc, xft_fore.pixel);
+              }
+#else
                 XSetForeground (dpy, gc, pix_colors[fore]);
+#endif
 
               XDrawLine (dpy, vt, gc,
                          xpixel, ypixel + font->ascent + 1,
@@ -2461,7 +2520,11 @@ rxvt_term::scr_refresh () NOTHROW
         scr_set_char_rend (ROW(screen.cur.row), cur_col, cur_rend);
       else if (oldcursor.row >= 0)
         {
+#ifdef USE_24_BIT_COLOR
+          fprintf(stderr, "TODO:%s:%d\n", __FILE__, __LINE__);
+#else
           XSetForeground (dpy, gc, pix_colors[ccol1]);
+#endif
 
           XDrawRectangle (dpy, vt, gc,
                           Col2Pixel (cur_col),
@@ -2530,15 +2593,30 @@ rxvt_term::scr_recolour (bool refresh) NOTHROW
       else
 # endif
         {
+#ifdef USE_24_BIT_COLOR
+          XFT_COLOR(Color_border, xft_border);
+          XSetWindowBackground (dpy, parent, xft_border.pixel);
+#else
           XSetWindowBackground (dpy, parent, pix_colors[Color_border]);
+#endif
           XSetWindowBackgroundPixmap (dpy, vt, bg_img->pm);
         }
     }
   else
 #endif
     {
+#ifdef USE_24_BIT_COLOR
+      XFT_COLOR(Color_border, xft_border);
+      XSetWindowBackground (dpy, parent, xft_border.pixel);
+#else
       XSetWindowBackground (dpy, parent, pix_colors[Color_border]);
+#endif
+#ifdef USE_24_BIT_COLOR
+      XFT_COLOR(Color_bg, xft_bg);
+      XSetWindowBackground (dpy, vt, xft_bg.pixel);
+#else
       XSetWindowBackground (dpy, vt, pix_colors[Color_bg]);
+#endif
     }
 
   XClearWindow (dpy, parent);
@@ -2548,7 +2626,11 @@ rxvt_term::scr_recolour (bool refresh) NOTHROW
       if (transparent)
         XSetWindowBackgroundPixmap (dpy, scrollBar.win, ParentRelative);
       else
+#ifdef USE_24_BIT_COLOR
+        fprintf(stderr, "TODO:%s:%d (scrollBar.color () ?)\n", __FILE__, __LINE__);
+#else
         XSetWindowBackground (dpy, scrollBar.win, pix_colors[scrollBar.color ()]);
+#endif
       scrollBar.state = SB_STATE_IDLE;
       scrollBar.show (0);
     }
