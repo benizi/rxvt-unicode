@@ -3980,6 +3980,22 @@ rxvt_term::process_sgr_mode (unsigned int nargs, const int *arg)
                 scr_color_rgb (arg[i + 2], arg[i + 3], arg[i + 4], Color_fg);
                 i += 4;
               }
+            else if (nargs > i + 4 && (arg[i + 1] == 6 || arg[i + 1] == 7))
+              {
+                int r = arg[i + 2];
+                int g = arg[i + 3];
+                int b = arg[i + 4];
+                r &= 0xff;
+                g &= 0xff;
+                b &= 0xff;
+                r *= 0x101;
+                g *= 0x101;
+                b *= 0x101;
+                char color[20];
+                sprintf (color, "rgb:%04x/%04x/%04x", r, g, b);
+                set_window_color (arg[i + 1] == 6 ? Color_fg : Color_cursor, color);
+                i += 4;
+              }
 #endif
             break;
           case 39:		/* default fg */
@@ -4011,6 +4027,22 @@ rxvt_term::process_sgr_mode (unsigned int nargs, const int *arg)
             else if (nargs > i + 4 && arg[i + 1] == 2)
               {
                 scr_color_rgb (arg[i + 2], arg[i + 3], arg[i + 4], Color_bg);
+                i += 4;
+              }
+            else if (nargs > i + 4 && (arg[i + 1] == 6 || arg[i + 1] == 7))
+              {
+                int r = arg[i + 2];
+                int g = arg[i + 3];
+                int b = arg[i + 4];
+                r &= 0xff;
+                g &= 0xff;
+                b &= 0xff;
+                r *= 0x101;
+                g *= 0x101;
+                b *= 0x101;
+                char color[20];
+                sprintf (color, "rgb:%04x/%04x/%04x", r, g, b);
+                set_window_color (arg[i + 1] == 6 ? Color_bg : Color_cursor, color);
                 i += 4;
               }
 #endif
