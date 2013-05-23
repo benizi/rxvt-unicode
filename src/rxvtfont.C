@@ -251,9 +251,7 @@ rxvt_font::clear_rect (rxvt_drawable &d, int x, int y, int w, int h, int color) 
 
 # if defined(HAVE_BG_PIXMAP) && !defined(USE_24_BIT_COLOR)
       if (term->bg_img
-#ifndef USE_24_BIT_COLOR
           && !term->pix_colors[color].is_opaque ()
-#endif
           && ((dst = XftDrawPicture (d))))
         {
           XClearArea (disp, d, x, y, w, h, false);
@@ -270,6 +268,7 @@ rxvt_font::clear_rect (rxvt_drawable &d, int x, int y, int w, int h, int color) 
 #ifdef USE_24_BIT_COLOR
         XFT_COLOR(color, color_r);
         XftDrawRect (d, &color_r, x, y, w, h);
+        //fprintf(stderr, "TODO:%s:%d [color=%d]\n", __FILE__, __LINE__, color);
 #else
         XftDrawRect (d, &term->pix_colors[color].c, x, y, w, h);
 #endif
@@ -368,6 +367,7 @@ rxvt_font_default::draw (rxvt_drawable &d, int x, int y,
 #ifdef USE_24_BIT_COLOR
   XFT_COLOR(fg, xft_fg);
   XSetForeground (disp, gc, xft_fg.pixel);
+  //fprintf(stderr, "TODO:%s:%d [fg=%08x pixel=%016lx]\n", __FILE__, __LINE__, fg, xft_fg.pixel);
 #else
   XSetForeground (disp, gc, term->pix_colors[fg]);
 #endif
@@ -1454,11 +1454,8 @@ rxvt_font_xft::draw (rxvt_drawable &d, int x, int y,
           Picture dst = 0; // the only assignment is done conditionally in the following if condition
 
           if (term->bg_img
-#ifndef USE_24_BIT_COLOR
               && (bg == Color_transparent || bg == Color_bg
-                  || (bg >= 0 && !term->pix_colors[bg].is_opaque () && ((dst = XftDrawPicture (d2)))))
-#endif
-              )
+                  || (bg >= 0 && !term->pix_colors[bg].is_opaque () && ((dst = XftDrawPicture (d2))))))
             {
               int src_x = x, src_y = y;
 
@@ -1495,11 +1492,7 @@ rxvt_font_xft::draw (rxvt_drawable &d, int x, int y,
 
               if (dst)
                 {
-#ifdef USE_24_BIT_COLOR
-          fprintf(stderr, "TODO:%s:%d [bg=%d]\n", __FILE__, __LINE__, bg);
-#else
                   Picture solid_color_pict = XftDrawSrcPicture (d2, &term->pix_colors[bg].c);
-#endif
 
                   // dst can only be set when bg >= 0
                   XRenderComposite (disp, PictOpOver, solid_color_pict, None, dst, 0, 0, 0, 0, 0, 0, w, h);
@@ -1511,12 +1504,14 @@ rxvt_font_xft::draw (rxvt_drawable &d, int x, int y,
           {
             if(bg >= 0)
               {
-                XFT_COLOR(bg, xft_bg);
+                CHECKLESS_XFT_COLOR(bg, xft_bg);
                 XftDrawRect (d2, &xft_bg, 0, 0, w, h);
+                //fprintf(stderr, "TODO:%s:%d [bg=%d]\n", __FILE__, __LINE__, bg);
               }
             else
               {
                 XftDrawRect (d2, &term->pix_colors[Color_bg].c, 0, 0, w, h);
+                //fprintf(stderr, "TODO:%s:%d [bg (<=0) %d]\n", __FILE__, __LINE__, bg);
               }
           }
 #else
@@ -1524,8 +1519,9 @@ rxvt_font_xft::draw (rxvt_drawable &d, int x, int y,
 #endif
 
 #ifdef USE_24_BIT_COLOR
-          XFT_COLOR(fg, xft_fg);
+          CHECKLESS_XFT_COLOR(fg, xft_fg);
           XftDrawGlyphSpec (d2, &xft_fg, f, enc, ep - enc);
+          //fprintf(stderr, "TODO:%s:%d [fg=%d]\n", __FILE__, __LINE__, fg);
 #else
           XftDrawGlyphSpec (d2, &term->pix_colors[fg].c, f, enc, ep - enc);
 #endif
@@ -1538,7 +1534,7 @@ rxvt_font_xft::draw (rxvt_drawable &d, int x, int y,
     {
       clear_rect (d, x, y, w, h, bg);
 #ifdef USE_24_BIT_COLOR
-          fprintf(stderr, "TODO:%s:%d\n", __FILE__, __LINE__);
+      fprintf(stderr, "TODO:%s:%d\n", __FILE__, __LINE__);
 #else
       XftDrawGlyphSpec (d, &term->pix_colors[fg].c, f, enc, ep - enc);
 #endif

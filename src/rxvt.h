@@ -477,12 +477,80 @@ enum {
 #if USE_24_BIT_COLOR
 #define RS_FG_COLOR(X) (((rend_t)X) << RS_fgShift)
 #define RS_BG_COLOR(X) (((rend_t)X) << RS_bgShift)
+//#define DEFAULT_RSTYLE  (RS_None | (C(0xffffff) << RS_fgShift) | (C(0x000000)  << RS_bgShift))
 #define DEFAULT_RSTYLE  (RS_None | (RS_FG_COLOR(0xffffff)    ) | (RS_BG_COLOR(0x000000)     ))
 #define OVERLAY_RSTYLE  (RS_None | (RS_FG_COLOR(0x000000)    ) | (RS_BG_COLOR(0xff9900)     ))
+//#define OVERLAY_RSTYLE  (RS_None | (C(0x000000) << RS_fgShift) | (C(0xff9900)  << RS_bgShift))
 #else
 #define DEFAULT_RSTYLE  (RS_None | (Color_fg    << RS_fgShift) | (Color_bg     << RS_bgShift))
 #define OVERLAY_RSTYLE  (RS_None | (Color_Black << RS_fgShift) | (Color_Yellow << RS_bgShift))
 #endif
+
+#ifdef USE_24_BIT_COLOR
+#define AAAZ "%016lx"
+#define AABZ "%016lx"
+#define TRANZ(X) X
+
+#define DBG_COLOR(rs, mask, shift) \
+  fprintf(stderr, "\e[38;2;%d;%d;%dm", \
+      ( ( ( (rs & mask) >> shift ) >> 16) & 0xff), \
+      ( ( ( (rs & mask) >> shift ) >>  8) & 0xff), \
+      ( ( ( (rs & mask) >> shift )      ) & 0xff) \
+      )
+
+#else
+#define AAAZ "%08x"
+#define AABZ AAAZ
+#define TRANZ(X) X
+
+#define DBG_COLOR(rs, mask, shift) \
+  fprintf(stderr, "\e[38;5;%dm", \
+      ( ( ( (rs & mask) >> shift )      ) & 0xff) \
+      )
+
+#endif
+
+#define SHOWNONCOLORS 1
+
+#define DBG_MASK(rs, mask) \
+  fprintf(stderr, "%-15s= " AABZ "\n", #mask, TRANZ(mask))
+#define DBG_MASK_SHIFT(rs, mask, shift) \
+  fprintf(stderr, "%-15s= " AABZ " : " AAAZ " %10d %-14s=%d\n", #mask, TRANZ(mask), (rs & mask), ((rs & mask) >> shift), #shift, shift)
+#define DBG_COLOR_MASK_SHIFT(rs, mask, shift) \
+  fprintf(stderr, "%-15s= " AABZ " : " AAAZ " %10d %-14s=%d\n", #mask, TRANZ(mask), (rs & mask), ((rs & mask) >> shift), #shift, shift)
+
+#if !SHOWNONCOLORS
+#undef DBG_MASK
+#undef DBG_MASK_SHIFT
+#define DBG_MASK(rs, mask) {}
+#define DBG_MASK_SHIFT(rs, mask, shift) {}
+#endif
+#define DBG_CLEAR() fprintf(stderr, "\e[0m")
+
+#define DEBUG_RS_ATTRIBUTES(rs) \
+  if(1){ \
+    fprintf(stderr, "%-15s= " AAAZ "                             \n", "rs", rs); \
+    DBG_MASK(rs, RS_colorMask); \
+    DBG_COLOR(rs, RS_bgMask, RS_bgShift); \
+    DBG_COLOR_MASK_SHIFT(rs, RS_bgMask, RS_bgShift); \
+    DBG_CLEAR(); \
+    DBG_COLOR(rs, RS_fgMask, RS_fgShift); \
+    DBG_COLOR_MASK_SHIFT(rs, RS_fgMask, RS_fgShift); \
+    DBG_CLEAR(); \
+    DBG_MASK_SHIFT(rs, RS_Careful, RS_fontShift); \
+    DBG_MASK_SHIFT(rs, RS_fontMask, RS_fontCount); \
+    DBG_MASK(rs, RS_redraw); \
+    DBG_MASK_SHIFT(rs, RS_Sel, RS_selShift); \
+    DBG_MASK_SHIFT(rs, RS_customMask, RS_customShift);\
+    DBG_MASK(rs, RS_Bold); \
+    DBG_MASK(rs, RS_Italic); \
+    DBG_MASK_SHIFT(rs, RS_styleMask, RS_styleShift); \
+    DBG_MASK_SHIFT(rs, RS_Blink, RS_blinkShift); \
+    DBG_MASK(rs, RS_RVid); \
+    DBG_MASK(rs, RS_Uline); \
+    DBG_MASK(rs, RS_baseattrMask); \
+    DBG_MASK(rs, RS_attrMask); \
+  }
 
 enum {
   C0_NUL = 0x00,

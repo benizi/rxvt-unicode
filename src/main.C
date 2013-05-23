@@ -602,11 +602,66 @@ rxvt_get_ttymode (struct termios *tio)
 char **rxvt_environ; // startup environment
 
 void
+print_the_colors ()
+{
+  return;
+fprintf(stderr,"Color_none=%d\n",Color_none);
+fprintf(stderr,"Color_transparent=%d\n",Color_transparent);
+fprintf(stderr,"Color_fg=%d\n",Color_fg);
+fprintf(stderr,"Color_bg=%d\n",Color_bg);
+fprintf(stderr,"minCOLOR=%d\n",minCOLOR);
+fprintf(stderr,"Color_Black=%d\n",Color_Black);
+fprintf(stderr,"Color_Red3=%d\n",Color_Red3);
+fprintf(stderr,"Color_Green3=%d\n",Color_Green3);
+fprintf(stderr,"Color_Yellow3=%d\n",Color_Yellow3);
+fprintf(stderr,"Color_Blue3=%d\n",Color_Blue3);
+fprintf(stderr,"Color_Magenta3=%d\n",Color_Magenta3);
+fprintf(stderr,"Color_Cyan3=%d\n",Color_Cyan3);
+fprintf(stderr,"maxCOLOR=%d\n",maxCOLOR);
+fprintf(stderr,"Color_AntiqueWhite=%d\n",Color_AntiqueWhite);
+fprintf(stderr,"minBrightCOLOR=%d\n",minBrightCOLOR);
+fprintf(stderr,"Color_Grey25=%d\n",Color_Grey25);
+fprintf(stderr,"Color_Red=%d\n",Color_Red);
+fprintf(stderr,"Color_Green=%d\n",Color_Green);
+fprintf(stderr,"Color_Yellow=%d\n",Color_Yellow);
+fprintf(stderr,"Color_Blue=%d\n",Color_Blue);
+fprintf(stderr,"Color_Magenta=%d\n",Color_Magenta);
+fprintf(stderr,"Color_Cyan=%d\n",Color_Cyan);
+fprintf(stderr,"maxBrightCOLOR=%d\n",maxBrightCOLOR);
+fprintf(stderr,"Color_White=%d\n",Color_White);
+fprintf(stderr,"Color_White=%d\n",Color_White);
+fprintf(stderr,"minTermCOLOR=%d\n",minTermCOLOR);
+fprintf(stderr,"maxTermCOLOR=%d\n",maxTermCOLOR);
+fprintf(stderr,"maxTermCOLOR=%d\n",maxTermCOLOR);
+fprintf(stderr,"Color_cursor=%d\n",Color_cursor);
+fprintf(stderr,"Color_cursor2=%d\n",Color_cursor2);
+fprintf(stderr,"Color_pointer_fg=%d\n",Color_pointer_fg);
+fprintf(stderr,"Color_pointer_bg=%d\n",Color_pointer_bg);
+fprintf(stderr,"Color_border=%d\n",Color_border);
+fprintf(stderr,"Color_BD=%d\n",Color_BD);
+fprintf(stderr,"Color_IT=%d\n",Color_IT);
+fprintf(stderr,"Color_UL=%d\n",Color_UL);
+fprintf(stderr,"Color_RV=%d\n",Color_RV);
+fprintf(stderr,"Color_underline=%d\n",Color_underline);
+fprintf(stderr,"Color_HC=%d\n",Color_HC);
+fprintf(stderr,"Color_HTC=%d\n",Color_HTC);
+fprintf(stderr,"Color_scroll=%d\n",Color_scroll);
+fprintf(stderr,"Color_trough=%d\n",Color_trough);
+fprintf(stderr,"Color_tint=%d\n",Color_tint);
+fprintf(stderr,"Color_fade=%d\n",Color_fade);
+fprintf(stderr,"NRS_COLORS=%d\n",NRS_COLORS);
+fprintf(stderr,"Color_topShadow=%d\n",Color_topShadow);
+fprintf(stderr,"Color_bottomShadow=%d\n",Color_bottomShadow);
+fprintf(stderr,"TOTAL_COLORS=%d\n",TOTAL_COLORS);
+}
+
+void
 rxvt_init ()
 {
   assert (("fontMask must not overlap other RS masks",
            0 == (RS_fontMask & (RS_Sel | RS_baseattrMask | RS_customMask | RS_bgMask | RS_fgMask))));
 
+  print_the_colors();
   rxvt_get_ttymode (&rxvt_term::def_tio);
 
   // get rid of stdin/stdout as we don't need them, to free resources
@@ -973,6 +1028,7 @@ rxvt_term::set_window_color (int idx, const char *color)
    */
 
   pix_colors_focused[idx] = xcol;
+  fprintf(stderr, "Setting COLOR[%d] to <%s>\n", idx, color);
 
 done:
   /*TODO: handle Color_BD, scrollbar background, etc. */
