@@ -1430,7 +1430,7 @@ rxvt_term::scr_erase_screen (int mode) NOTHROW
       if (mapped)
         {
 #ifdef USE_24_BIT_COLOR
-          fprintf(stderr, "TODO:%s:%d\n", __FILE__, __LINE__);
+          gcvalue.foreground = bgcolor_of (rstyle);
 #else
           gcvalue.foreground = pix_colors[bgcolor_of (rstyle)];
 #endif
@@ -1440,7 +1440,7 @@ rxvt_term::scr_erase_screen (int mode) NOTHROW
                           (unsigned int)vt_width,
                           (unsigned int)Height2Pixel (num));
 #ifdef USE_24_BIT_COLOR
-          fprintf(stderr, "TODO:%s:%d\n", __FILE__, __LINE__);
+          RXVT_TO_24BIT(pix_colors[Color_fg], gcvalue.foreground);
 #else
           gcvalue.foreground = pix_colors[Color_fg];
 #endif
@@ -2161,7 +2161,13 @@ rxvt_term::scr_refresh () NOTHROW
 
 #ifndef NO_CURSORCOLOR
         if (ISSET_PIXCOLOR (Color_cursor))
+#ifdef USE_24_BIT_COLOR
+          {
+            RXVT_TO_24BIT(pix_colors_focused[Color_cursor], ccol1);
+          }
+#else
           ccol1 = Color_cursor;
+#endif
         else
 #endif
 #ifdef CURSOR_COLOR_IS_RENDITION_COLOR
@@ -2178,7 +2184,11 @@ rxvt_term::scr_refresh () NOTHROW
 #ifdef CURSOR_COLOR_IS_RENDITION_COLOR
           ccol2 = bgcolor_of (rstyle);
 #else
+#ifdef USE_24_BIT_COLOR
+          CHECKLESS_RXVT_TO_24BIT(pix_colors[Color_bg], ccol2);
+#else
           ccol2 = Color_bg;
+#endif
 #endif
 
         if (focus)
@@ -2385,7 +2395,13 @@ rxvt_term::scr_refresh () NOTHROW
               if (rend & RS_Bold && fore == Color_fg)
                 {
                   if (ISSET_PIXCOLOR (Color_BD))
+#ifdef USE_24_BIT_COLOR
+                    {
+                      fprintf(stderr, "TODO:%s:%d [rend & RS_Bold & fore == Color_fg]\n", __FILE__, __LINE__);
+                    }
+#else
                     fore = Color_BD;
+#endif
 # if !ENABLE_STYLES
                   else
                     invert = !invert;
@@ -2395,7 +2411,13 @@ rxvt_term::scr_refresh () NOTHROW
               if (rend & RS_Italic && fore == Color_fg)
                 {
                   if (ISSET_PIXCOLOR (Color_IT))
+#ifdef USE_24_BIT_COLOR
+                    {
+                      fprintf(stderr, "TODO:%s:%d [rend & RS_Italic & fore == fg]\n", __FILE__, __LINE__);
+                    }
+#else
                     fore = Color_IT;
+#endif
 # if !ENABLE_STYLES
                   else
                     invert = !invert;
@@ -2403,7 +2425,13 @@ rxvt_term::scr_refresh () NOTHROW
                 }
 
               if (rend & RS_Uline && fore == Color_fg && ISSET_PIXCOLOR (Color_UL))
+#ifdef USE_24_BIT_COLOR
+                {
+                  fprintf(stderr, "TODO:%s:%d [rend & RS_Uline & fore == Color_fg & ISSET_PIXCOLOR(Color_UL)]\n", __FILE__, __LINE__);
+                }
+#else
                 fore = Color_UL;
+#endif
 #endif
 
 #ifdef OPTION_HC
@@ -2415,13 +2443,34 @@ rxvt_term::scr_refresh () NOTHROW
                       && ISSET_PIXCOLOR (Color_HC))
                     {
                       if (ISSET_PIXCOLOR (Color_HTC))
+#ifdef USE_24_BIT_COLOR
+                        {
+                          fprintf(stderr, "TODO:%s:%d [ISSET_PIXCOLOR(Color_HTC)]\n", __FILE__, __LINE__);
+                        }
+#else
                         fore = Color_HTC;
+#endif
                       // if invert is 0 reverse video is set so we use bg color as fg color
                       else if (!invert)
+#ifdef USE_24_BIT_COLOR
+                        {
+                          fprintf(stderr, "TODO:%s:%d [fore = back]\n", __FILE__, __LINE__);
+                          fore = back;
+                        }
+#else
                         fore = back;
+#endif
 
+#ifdef USE_24_BIT_COLOR
+                      fprintf(stderr, "TODO:%s:%d [back = Color_HC]\n", __FILE__, __LINE__);
+#else
                       back = Color_HC;
+#endif
+#ifdef USE_24_BIT_COLOR
+                      fprintf(stderr, "TODO:%s:%d [invert = 0]\n", __FILE__, __LINE__);
+#else
                       invert = 0;
+#endif
                     }
                 }
 #endif
@@ -2433,8 +2482,10 @@ rxvt_term::scr_refresh () NOTHROW
 #ifndef NO_BOLD_UNDERLINE_REVERSE
                   if (fore == back)
                     {
+#ifndef USE_24_BIT_COLOR
                       fore = Color_bg;
                       back = Color_fg;
+#endif
                     }
 #endif
                 }
@@ -2448,7 +2499,11 @@ rxvt_term::scr_refresh () NOTHROW
                       hidden_text = 0;
                     }
                   else if (hidden_text)
+#ifdef USE_24_BIT_COLOR
+                    fprintf(stderr, "TODO:%s:%d [fore = back]\n", __FILE__, __LINE__);
+#else
                     fore = back;
+#endif
                 }
 #endif
 
@@ -2614,30 +2669,15 @@ rxvt_term::scr_recolour (bool refresh) NOTHROW
       else
 # endif
         {
-#ifdef USE_24_BIT_COLOR
-          XFT_COLOR(Color_border, xft_border);
-          XSetWindowBackground (dpy, parent, xft_border.pixel);
-#else
           XSetWindowBackground (dpy, parent, pix_colors[Color_border]);
-#endif
           XSetWindowBackgroundPixmap (dpy, vt, bg_img->pm);
         }
     }
   else
 #endif
     {
-#ifdef USE_24_BIT_COLOR
-      XFT_COLOR(Color_border, xft_border);
-      XSetWindowBackground (dpy, parent, xft_border.pixel);
-#else
       XSetWindowBackground (dpy, parent, pix_colors[Color_border]);
-#endif
-#ifdef USE_24_BIT_COLOR
-      XFT_COLOR(Color_bg, xft_bg);
-      XSetWindowBackground (dpy, vt, xft_bg.pixel);
-#else
       XSetWindowBackground (dpy, vt, pix_colors[Color_bg]);
-#endif
     }
 
   XClearWindow (dpy, parent);
@@ -2647,11 +2687,7 @@ rxvt_term::scr_recolour (bool refresh) NOTHROW
       if (transparent)
         XSetWindowBackgroundPixmap (dpy, scrollBar.win, ParentRelative);
       else
-#ifdef USE_24_BIT_COLOR
-        fprintf(stderr, "TODO:%s:%d (scrollBar.color () ?)\n", __FILE__, __LINE__);
-#else
         XSetWindowBackground (dpy, scrollBar.win, pix_colors[scrollBar.color ()]);
-#endif
       scrollBar.state = SB_STATE_IDLE;
       scrollBar.show (0);
     }

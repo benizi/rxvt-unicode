@@ -1509,8 +1509,15 @@ rxvt_font_xft::draw (rxvt_drawable &d, int x, int y,
 #endif
 #ifdef USE_24_BIT_COLOR
           {
-            XFT_COLOR(bg, xft_bg);
-            XftDrawRect (d2, &xft_bg, 0, 0, w, h);
+            if(bg >= 0)
+              {
+                XFT_COLOR(bg, xft_bg);
+                XftDrawRect (d2, &xft_bg, 0, 0, w, h);
+              }
+            else
+              {
+                XftDrawRect (d2, &term->pix_colors[Color_bg].c, 0, 0, w, h);
+              }
           }
 #else
             XftDrawRect (d2, &term->pix_colors[bg >= 0 ? bg : Color_bg].c, 0, 0, w, h);
