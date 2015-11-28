@@ -1,0 +1,14 @@
+# ignore generated files
+/autom4te.cache
+/config.*
+/doc/*.man
+/src/man*
+/src/perlxsi.c
+/src/rxvtperl.C
+Makefile
+
+# ignore binaries
+*.o
+/src/rxvt
+/src/rxvtc
+/src/rxvtd
