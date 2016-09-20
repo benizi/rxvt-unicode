@@ -2636,7 +2636,8 @@ rxvt_term::scr_refresh () NOTHROW
 #ifdef USE_24_BIT_COLOR
           //XFT_COLOR(ccol1, xft_ccol1);
           //XSetForeground (dpy, gc, pix_colors[ccol1]);
-          fprintf(stderr, "TODO:%s:%d\n", __FILE__, __LINE__);
+          // TODO: this one fires a lot.
+          //fprintf(stderr, "TODO:%s:%d\n", __FILE__, __LINE__);
 #else
           XSetForeground (dpy, gc, pix_colors[ccol1]);
 #endif
