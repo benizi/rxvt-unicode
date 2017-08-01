@@ -137,6 +137,7 @@ static const struct rxvt_fallback_font {
 
   //{ CS_UNICODE,      "-*-unifont-*-*-*-*-*-*-*-*-c-*-iso10646-1"   }, // this gem of a font has actual dotted circles within the combining character glyphs.
 #if XFT
+  /*
   { CS_UNICODE,      "xft:Bitstream Vera Sans Mono:antialias=false:autohint=true" },
   { CS_UNICODE,      "xft:Courier New:antialias=false:autohint=true"              },
   { CS_UNICODE,      "xft:Andale Mono:antialias=false:autohint=false"             },
@@ -144,6 +145,7 @@ static const struct rxvt_fallback_font {
 
   // FreeMono is usually uglier than x fonts, so try after the others
   { CS_UNICODE,      "xft:FreeMono:autohint=true"                  },
+  */
 #endif
 
   // generic font fallback, put this last, as many iso10646 fonts have extents
@@ -159,6 +161,7 @@ static uint16_t extent_test_chars[] = {
   '0', '1', '8', 'a', 'd', 'x', 'm', 'y', 'g', 'W', 'X', '\'', '_',
   0x00cd, 0x00d5, 0x0114, 0x0177, 0x0643,	// ÍÕĔŷﻙ
   0x304c, 0x672c,				// が本
+  0xfffd,				// � - REPLACEMENT CHARACTER
 };
 
 #define dTermDisplay Display *disp = term->dpy
@@ -1220,7 +1223,9 @@ rxvt_font_xft::load (const rxvt_fontprop &prop, bool force_prop)
 
   clear ();
 
+  rxvt_warn ("DEBUGGING:Going to parse '%s'\n", name);
   FcPattern *p = FcNameParse ((FcChar8 *) name);
+  rxvt_warn ("DEBUGGING:Parsed '%s'\n", name);
 
   if (!p)
     return false;
@@ -1257,8 +1262,27 @@ rxvt_font_xft::load (const rxvt_fontprop &prop, bool force_prop)
 
   FcPatternDestroy (p);
 
+  if (!match) rxvt_warn ("DEBUGGING:No match\n");
   if (!match)
     return false;
+
+  /*
+  int rxvt_width = -1;
+  bool has_width = FcPatternGetInteger (match, "rxvtwidth", 0, &rxvt_width) == FcResultMatch;
+  rxvt_warn ("DEBUGGING:has_width=%s:rxvtwidth=%d\n", has_width ? "yes" : "no", rxvt_width);
+  */
+  rxvt_warn ("DEBUGGING:name='%s'\n", name);
+#define YESNO(B) (B)?"yes":"no"
+#define GETINT(PROP) \
+  int rxvt_ ##PROP = -1; \
+  bool has_ ##PROP = FcPatternGetInteger (match, "rxvt" #PROP, 0, &rxvt_ ##PROP) == FcResultMatch; \
+  rxvt_warn ("DEBUGGING:has_" #PROP "=%s:rxvt" #PROP "=%d\n", YESNO(has_ ##PROP), rxvt_ ##PROP)
+  GETINT(width);
+  GETINT(height);
+  GETINT(glheight);
+  GETINT(ascent);
+  GETINT(descent);
+#define INTOR(PROP,DEF) has_ ##PROP ? rxvt_ ##PROP : (DEF)
 
   int ftheight = 0;
   bool success = true;
@@ -1277,16 +1301,16 @@ rxvt_font_xft::load (const rxvt_fontprop &prop, bool force_prop)
 
       FT_Face face = XftLockFace (f);
 
-      ascent  = (face->size->metrics.ascender + 63) >> 6;
-      descent = (-face->size->metrics.descender + 63) >> 6;
-      height  = max (ascent + descent, (face->size->metrics.height + 63) >> 6);
-      width   = 0;
+      ascent  = INTOR(ascent, ((face->size->metrics.ascender + 63) >> 6));
+      descent = INTOR(descent, ((-face->size->metrics.descender + 63) >> 6));
+      height  = INTOR(height, max (ascent + descent, (face->size->metrics.height + 63) >> 6));
+      width   = INTOR(width, 0);
 
       bool scalable = face->face_flags & FT_FACE_FLAG_SCALABLE;
 
       XftUnlockFace (f);
 
-      int glheight = height;
+      int glheight = INTOR(glheight, height);
 
       for (uint16_t *t = extent_test_chars; t < extent_test_chars + ecb_array_length (extent_test_chars); t++)
         {
@@ -1310,8 +1334,11 @@ rxvt_font_xft::load (const rxvt_fontprop &prop, bool force_prop)
           int wcw = WCWIDTH (ch);
           if (wcw > 0) g.width = (g.width + wcw - 1) / wcw;
 
+          if (!has_width)
           if (width    < g.width       ) width    = g.width;
+          if (!has_height)
           if (height   < g.height      ) height   = g.height;
+          if (!has_glheight)
           if (glheight < g.height - g.y) glheight = g.height - g.y;
         }
 
@@ -1326,11 +1353,42 @@ rxvt_font_xft::load (const rxvt_fontprop &prop, bool force_prop)
           break;
         }
 
+      /* original:
       if (prop.height == rxvt_fontprop::unset
           || (height <= prop.height && glheight <= prop.height)
           || height <= 2
           || !scalable)
         break;
+        */
+
+#define DBG(X,FMT,EXP) ({ \
+    rxvt_warn("DEBUGGING:check:" #X "(" #FMT ")\n", (EXP)); X; })
+#define DBGb(X) DBG(X,%s,YESNO(X))
+#define OUTi(X) ({ rxvt_warn("DEBUGGING:%d (" #X ")\n", (X)); false; })
+#define OUTb(X) ({ rxvt_warn("DEBUGGING:%s (" #X ")\n", YESNO(X)); false; })
+#define PASSED(X) ({ rxvt_warn ("DEBUGGING:passed:" #X "\n"); false; })
+      if (OUTi(prop.height)
+          || OUTi(height)
+          || OUTi(glheight)
+          || OUTi(ftheight)
+          || DBGb(prop.height == rxvt_fontprop::unset)
+          || PASSED(prop.height == rxvt_fontprop::unset)
+          || DBGb(height <= prop.height && glheight <= prop.height)
+          || PASSED(height <= prop.height && glheight <= prop.height)
+          || DBGb(height <= 2)
+          || PASSED(height <= 2)
+          || DBGb(!scalable)
+          || PASSED(!scalable))
+        break;
+/*
+#define BREAKIF(X) \
+      rxvt_warn("DEBUGGING:" #X " ? %s\n", (X) ? "yes" : "no"); \
+      if (X) break
+      BREAKIF(prop.height == rxvt_fontprop::unset);
+      BREAKIF(height <= prop.height && glheight <= prop.height);
+      BREAKIF(height <= 2);
+      BREAKIF(!scalable);
+      */
 
       if (ftheight)
         {
@@ -1347,6 +1405,7 @@ rxvt_font_xft::load (const rxvt_fontprop &prop, bool force_prop)
       XftFontClose (disp, f);
       FcPatternDel (match, FC_PIXEL_SIZE);
       FcPatternAddInteger (match, FC_PIXEL_SIZE, ftheight);
+      rxvt_warn ("DEBUGGING:Add(ftheight=%d)\n", ftheight);
     }
 
   FcPatternDestroy (match);
@@ -1359,6 +1418,8 @@ rxvt_font_xft::load (const rxvt_fontprop &prop, bool force_prop)
     }
 #endif
 
+  rxvt_warn ("DEBUGGING:width('%s')=%d\n", name, width);
+  rxvt_warn ("DEBUGGING:height('%s')=%d\n", name, height);
   return success;
 }
 
